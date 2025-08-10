@@ -59,7 +59,7 @@ public class BroadCastToRoom : BaseHandler<BroadCastToRoomEvent>
             Name = "BROADCASTTOROOM_FEEDBACK",
             Data = new BroadCastToRoomMessage()
             {
-                Feedback = "Mensagem enviada com sucesso!",
+                Feedback = "Message successfully sent!",
             },
         }.AsJson());
     }

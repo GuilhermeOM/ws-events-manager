@@ -65,7 +65,7 @@ public class LeaveRoomEventTests
         {
             Assert.That(eventResponse?.Name, Is.EqualTo("ERROR_FEEDBACK"));
             Assert.That(eventResponse?.Data, Is.InstanceOf(typeof(ErrorMessage)));
-            Assert.That(eventResponse?.Data?.Feedback, Is.EqualTo("Cliente não está na sala solicitada."));
+            Assert.That(eventResponse?.Data?.Feedback, Is.EqualTo("Client is not in the requested room"));
         });
     }
 
@@ -85,7 +85,7 @@ public class LeaveRoomEventTests
         {
             Assert.That(eventResponse?.Name, Is.EqualTo("ERROR_FEEDBACK"));
             Assert.That(eventResponse?.Data, Is.InstanceOf(typeof(ErrorMessage)));
-            Assert.That(eventResponse?.Data?.Feedback, Is.EqualTo("Sala não existe."));
+            Assert.That(eventResponse?.Data?.Feedback, Is.EqualTo("Room not exists"));
         });
     }
 }

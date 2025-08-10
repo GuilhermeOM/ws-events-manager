@@ -21,18 +21,15 @@ public static class StateService
         var didAdd = Connections.TryAdd(ws.ConnectionInfo.Id, websocketMetadata);
 
         var status = didAdd
-            ? "{Id} - Nova conexão adicionada com sucesso!"
-            : "{Id} - Não foi possível adicionar a nova conexão.";
+            ? "{Id} - New connection successfully added!"
+            : "{Id} - Failure adding new connection";
 
         Log.Write(
-            level: didAdd
-                ? Serilog.Events.LogEventLevel.Information
-                : Serilog.Events.LogEventLevel.Error,
+            level: didAdd ? Serilog.Events.LogEventLevel.Information : Serilog.Events.LogEventLevel.Error,
             messageTemplate: status,
             ws.ConnectionInfo.Id);
 
-        Log.Debug("Id da conexão adicionada: {Id}, Info da conexão adicionada: {@ConnectionInfo}.",
-            ws.ConnectionInfo.Id, websocketMetadata.Connection.ConnectionInfo);
+        Log.Debug("Connection: {Id}, Connection info: {@ConnectionInfo}.", ws.ConnectionInfo.Id, websocketMetadata.Connection.ConnectionInfo);
     }
 
     public static void RemoveConnection(IWebSocketConnection ws)
@@ -45,13 +42,11 @@ public static class StateService
             var didRemove = Connections.Remove(ws.ConnectionInfo.Id);
 
             var status = didRemove
-                ? "{Id} - Conexão do cliente {Username} removida com sucesso!"
-                : "{Id} - Não foi possível remover a conexão do cliente {Username}.";
+                ? "{Id} - Connection of client {Username} successfully removed!"
+                : "{Id} - Failure removing connection o client {Username}.";
 
             Log.Write(
-                level: didRemove
-                    ? Serilog.Events.LogEventLevel.Information
-                    : Serilog.Events.LogEventLevel.Error,
+                level: didRemove ? Serilog.Events.LogEventLevel.Information : Serilog.Events.LogEventLevel.Error,
                 messageTemplate: status,
                 ws.ConnectionInfo.Id, websocketMetadata.Username);
         }
@@ -66,10 +61,12 @@ public static class StateService
 
         if (!Rooms.TryGetValue(room, out var connectionIds))
         {
-            Log.Debug("Sala com id {Room} existe mas não foi criada, realizando criação.", room);
+            Log.Debug("Creating room {Room}...", room);
 
             connectionIds = new HashSet<Guid>();
             Rooms.Add(room, connectionIds);
+
+            Log.Debug("Room {Room} successfully created", room);
         }
 
         if (connectionIds.TryGetValue(ws.ConnectionInfo.Id, out _))
@@ -91,13 +88,11 @@ public static class StateService
                 var didRemove = connectionIds.Remove(ws.ConnectionInfo.Id);
 
                 var status = didRemove
-                    ? "{Id} - Cliente removido da sala {Room} com sucesso!"
-                    : "{Id} - Não foi possível remover cliente da sala {Room}.";
+                    ? "{Id} - Client successfully removed from room {Room}"
+                    : "{Id} - Failure removing client from room {Room}";
 
                 Log.Write(
-                    level: didRemove
-                        ? Serilog.Events.LogEventLevel.Information
-                        : Serilog.Events.LogEventLevel.Error,
+                    level: didRemove ? Serilog.Events.LogEventLevel.Information : Serilog.Events.LogEventLevel.Error,
                     messageTemplate: status,
                     ws.ConnectionInfo.Id, Enum.GetName(typeof(Room), roomId));
 
@@ -105,7 +100,7 @@ public static class StateService
             }
         }
 
-        Log.Debug("{Id} - Cliente não está em uma sala para remove-lo.", ws.ConnectionInfo.Id);
+        Log.Debug("{Id} - Client is not in a room to be removed", ws.ConnectionInfo.Id);
 
         return false;
     }
@@ -114,7 +109,7 @@ public static class StateService
     {
         if (!Enum.IsDefined(typeof(Room), room))
         {
-            Log.Error("Sala com enum id {Room} não existe.", room);
+            Log.Error("Room {Room} not exists", room);
 
             throw new RoomNotExistsException();
         }
@@ -128,7 +123,7 @@ public static class StateService
             return didRemove;
         }
 
-        Log.Debug("{Id} - Cliente não está na sala solicitada para remove-lo.", ws.ConnectionInfo.Id);
+        Log.Debug("{Id} - Client is not in the room to be removed", ws.ConnectionInfo.Id);
 
         throw new NotInARoomException();
     }
@@ -144,7 +139,7 @@ public static class StateService
         {
             if (Connections.TryGetValue(guid, out var ws))
             {
-                Log.Debug("Mensagem enviada para {Guid}: {Message}", guid, message);
+                Log.Debug("Message sent to {Guid}: {Message}", guid, message);
 
                 await ws.Connection.Send(message);
             }

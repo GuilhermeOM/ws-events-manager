@@ -37,8 +37,7 @@ public class LeaveRoom : BaseHandler<LeaveRoomEvent>
             throw new EventFailedException();
         }
 
-        Log.Information("{Id} - Cliente removido da sala {Room} com sucesso!",
-            socket.ConnectionInfo.Id, eventType.RoomName);
+        Log.Information("{Id} - Client successfully removed from the room {Room}!", socket.ConnectionInfo.Id, eventType.RoomName);
 
         await socket.Send(new Message<LeaveRoomMessage>()
         {
@@ -46,7 +45,7 @@ public class LeaveRoom : BaseHandler<LeaveRoomEvent>
             Name = "LEAVEROOM_FEEDBACK",
             Data = new LeaveRoomMessage()
             {
-                Feedback = "Removido da sala com sucesso!",
+                Feedback = "Successfully removed from the room!",
                 RoomName = eventType.RoomName
             },
         }.AsJson());

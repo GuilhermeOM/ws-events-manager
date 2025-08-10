@@ -40,7 +40,7 @@ public class Register : BaseHandler<RegisterEvent>
             Name = "REGISTER_FEEDBACK",
             Data = new RegisterMessage()
             {
-                Feedback = "Usuário registrado com sucesso!",
+                Feedback = "User successfully registered!",
                 Username = StateService.Connections[socket.ConnectionInfo.Id].Username
             },
         }.AsJson());

@@ -59,7 +59,7 @@ public class RegisterEventTests
         {
             Assert.That(eventResponse?.Name, Is.EqualTo("ERROR_FEEDBACK"));
             Assert.That(eventResponse?.Data, Is.InstanceOf(typeof(ErrorMessage)));
-            Assert.That(eventResponse?.Data?.Feedback, Is.EqualTo("Nome de usuário já está em uso."));
+            Assert.That(eventResponse?.Data?.Feedback, Is.EqualTo("User name is already in use"));
         });
     }
 
@@ -78,7 +78,7 @@ public class RegisterEventTests
         {
             Assert.That(eventResponse?.Name, Is.EqualTo("ERROR_FEEDBACK"));
             Assert.That(eventResponse?.Data, Is.InstanceOf(typeof(ErrorMessage)));
-            Assert.That(eventResponse?.Data?.Feedback, Is.EqualTo("Nome solicitado se trata de um nome reservado."));
+            Assert.That(eventResponse?.Data?.Feedback, Is.EqualTo("Requested name is a reserved one"));
         });
     }
 }

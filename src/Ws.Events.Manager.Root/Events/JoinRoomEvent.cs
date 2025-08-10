@@ -36,8 +36,7 @@ public class JoinRoom : BaseHandler<JoinRoomEvent>
             throw new EventFailedException();
         }
 
-        Log.Information("{Id} - Cliente juntou-se a sala {Room}.",
-            socket.ConnectionInfo.Id, Enum.GetName(typeof(Room), (int)roomAsEnum));
+        Log.Information("{Id} - Client joined room {Room}.", socket.ConnectionInfo.Id, Enum.GetName(typeof(Room), (int)roomAsEnum));
 
         await socket.Send(new Message<JoinRoomMessage>()
         {
@@ -45,7 +44,7 @@ public class JoinRoom : BaseHandler<JoinRoomEvent>
             Name = "JOINROOM_FEEDBACK",
             Data = new JoinRoomMessage()
             {
-                Feedback = "Adicionado a sala com sucesso!",
+                Feedback = "Successfully added to the room!",
                 RoomName = Enum.GetName(typeof(Room), roomAsEnum) ?? ""
             },
         }.AsJson());

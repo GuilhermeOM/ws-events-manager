@@ -59,7 +59,7 @@ public class JoinRoomEventTests
         {
             Assert.That(eventResponse?.Name, Is.EqualTo("ERROR_FEEDBACK"));
             Assert.That(eventResponse?.Data, Is.InstanceOf(typeof(ErrorMessage)));
-            Assert.That(eventResponse?.Data?.Feedback, Is.EqualTo("Cliente já está conectado na sala solicitada."));
+            Assert.That(eventResponse?.Data?.Feedback, Is.EqualTo("Client is already in the requested room"));
         });
     }
 
@@ -79,7 +79,7 @@ public class JoinRoomEventTests
         {
             Assert.That(eventResponse?.Name, Is.EqualTo("ERROR_FEEDBACK"));
             Assert.That(eventResponse?.Data, Is.InstanceOf(typeof(ErrorMessage)));
-            Assert.That(eventResponse?.Data?.Feedback, Is.EqualTo("Sala não existe."));
+            Assert.That(eventResponse?.Data?.Feedback, Is.EqualTo("Room not exists"));
         });
     }
 }

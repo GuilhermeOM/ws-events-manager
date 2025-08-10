@@ -34,7 +34,7 @@ public static class EventManager
         IWebSocketConnection ws, string message)
     {
         var @event = JsonSerializer.Deserialize<BaseEvent>(message, _serializePropertyInCaseInsensitive)
-            ?? throw new ArgumentException($"Não foi possível deserializar string: {message} para {nameof(BaseEvent)}");
+            ?? throw new ArgumentException($"Failure deserializing string: {message} to {nameof(BaseEvent)} type");
 
         var eventType = @event.EventType.EndsWith("Event", StringComparison.OrdinalIgnoreCase)
             ? @event.EventType[..^5]
@@ -59,11 +59,11 @@ public static class EventManager
 
         if (handlerType == null)
         {
-            throw new InvalidOperationException($"Não foi possível encontrar o handler para o evento do tipo: {@event.EventType}");
+            throw new InvalidOperationException($"Failure finding handler for type: {@event.EventType}");
         }
 
         dynamic clientEventServiceClass = app.Services.GetService(handlerType)!
-            ?? throw new InvalidOperationException($"Não foi possível resolver o serviço do evento para o tipo: {handlerType}");
+            ?? throw new InvalidOperationException($"Failure resolving the service for event of type: {handlerType}");
 
         await clientEventServiceClass.InvokeHandle(message, ws);
     }
