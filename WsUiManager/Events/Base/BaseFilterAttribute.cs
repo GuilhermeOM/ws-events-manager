@@ -1,6 +1,6 @@
-namespace WsUiManager.Events.Base;
-
 using Fleck;
+
+namespace WsUiManager.Events.Base;
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public abstract class BaseFilterAttribute : Attribute

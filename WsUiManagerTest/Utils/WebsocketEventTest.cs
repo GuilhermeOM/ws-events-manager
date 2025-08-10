@@ -1,41 +1,40 @@
-namespace WsUiManagerTest.Utils;
-
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using Websocket.Client;
 using WsUiManager.Events.Base;
 using WsUiManagerTest.Utils.Exceptions;
 
+namespace WsUiManagerTest.Utils;
 public class WebsocketEventTest : IDisposable
 {
-    private readonly List<string> messages = [];
-    private readonly WebsocketClient client;
+    private readonly List<string> _messages = [];
+    private readonly WebsocketClient _client;
 
-    private bool disposedValue;
+    private bool _disposedValue;
 
     public WebsocketEventTest(string serverURL)
     {
-        this.client = new WebsocketClient(new Uri(serverURL));
+        _client = new WebsocketClient(new Uri(serverURL));
 
-        _ = this.client.MessageReceived.Subscribe(message =>
+        _ = _client.MessageReceived.Subscribe(message =>
         {
             if (!string.IsNullOrEmpty(message.Text))
             {
-                lock (this.messages)
+                lock (_messages)
                 {
-                    this.messages.Add(message.Text);
+                    _messages.Add(message.Text);
                 }
             }
         });
 
-        this.StartWebsocketClientAsync();
+        StartWebsocketClientAsync();
     }
 
     private async void StartWebsocketClientAsync()
     {
-        await this.client.Start();
+        await _client.Start();
 
-        if (!this.client.IsRunning)
+        if (!_client.IsRunning)
         {
             throw new WebsocketClientIsNotRunningException();
         }
@@ -43,11 +42,11 @@ public class WebsocketEventTest : IDisposable
 
     private void KillWebsocketClient()
     {
-        this.messages.Clear();
+        _messages.Clear();
 
-        if (this.client != null && this.client.IsRunning)
+        if (_client != null && _client.IsRunning)
         {
-            this.client.Dispose();
+            _client.Dispose();
         }
     }
 
@@ -56,19 +55,19 @@ public class WebsocketEventTest : IDisposable
         where TM : class
     {
         var serializedEvent = JsonSerializer.Serialize(@event, SerializerOptions);
-        _ = this.client.Send(serializedEvent);
+        _ = _client.Send(serializedEvent);
 
         var startTime = DateTime.UtcNow;
 
         while (DateTime.UtcNow - startTime < TimeSpan.FromSeconds(maximumAwaitTimeInSeconds))
         {
-            foreach (var message in this.messages)
+            foreach (var message in _messages)
             {
                 var deserializedMessage = JsonHelper.DeserializeOrDefault<TM>(message, SerializerOptions);
 
                 if (deserializedMessage != null)
                 {
-                    this.messages.Clear();
+                    _messages.Clear();
                     return deserializedMessage;
                 }
             }
@@ -88,20 +87,20 @@ public class WebsocketEventTest : IDisposable
 
     public void Dispose()
     {
-        this.Dispose(true);
+        Dispose(true);
         GC.SuppressFinalize(this);
     }
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!this.disposedValue)
+        if (!_disposedValue)
         {
             if (disposing)
             {
-                this.KillWebsocketClient();
+                KillWebsocketClient();
             }
 
-            this.disposedValue = true;
+            _disposedValue = true;
         }
     }
 }

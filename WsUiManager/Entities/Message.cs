@@ -1,12 +1,18 @@
-namespace WsUiManager.Entities;
-
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using Serilog;
 using WsUiManager.Entities.Feedback;
 
+namespace WsUiManager.Entities;
 public class Message<T> where T : FeedbackMessage
 {
+    private static readonly JsonSerializerOptions _jsonSerializerForMessage = new()
+    {
+        WriteIndented = true,
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+    };
+
     public Guid Id { get; set; } = Guid.NewGuid();
     public required Guid ConnectionId { get; set; }
     public string Name { get; set; } = "UNDEFINED";
@@ -14,15 +20,8 @@ public class Message<T> where T : FeedbackMessage
 
     public string AsJson()
     {
-        Log.Debug("{@Id} - {@MessageAsJson}", this.ConnectionId, this);
+        Log.Debug("{@Id} - {@MessageAsJson}", ConnectionId, this);
 
-        return JsonSerializer.Serialize(this, JsonSerializerForMessage);
+        return JsonSerializer.Serialize(this, _jsonSerializerForMessage);
     }
-
-    private static readonly JsonSerializerOptions JsonSerializerForMessage = new()
-    {
-        WriteIndented = true,
-        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-    };
 }

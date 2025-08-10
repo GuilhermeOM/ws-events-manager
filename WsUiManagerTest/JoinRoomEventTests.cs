@@ -1,5 +1,3 @@
-namespace WsUiManagerTest;
-
 using WsUiManager;
 using WsUiManager.Entities;
 using WsUiManager.Entities.Enums;
@@ -7,10 +5,12 @@ using WsUiManager.Entities.Feedback;
 using WsUiManager.Events;
 using WsUiManagerTest.Utils;
 
+namespace WsUiManagerTest;
+
 [TestFixture, Description("Testar as respostas do evento JoinRoomEvent"), Category("Event")]
 public class JoinRoomEventTests
 {
-    private WebsocketEventTest client;
+    private WebsocketEventTest _client;
     private const int ROOM_ONE = 1;
 
     [SetUp]
@@ -18,11 +18,11 @@ public class JoinRoomEventTests
     {
         _ = Program.Startup([]);
 
-        this.client = new("ws://localhost:8181");
+        _client = new("ws://localhost:8181");
     }
 
     [TearDown]
-    public void TearDown() => this.client.Dispose();
+    public void TearDown() => _client.Dispose();
 
     [Test]
     public async Task CanJoinExistingRoom()
@@ -33,7 +33,7 @@ public class JoinRoomEventTests
             RoomName = Enum.GetName(typeof(Room), ROOM_ONE)!
         };
 
-        var eventResponse = await this.client.DispatchEvent<JoinRoomEvent, Message<JoinRoomMessage>>(@event);
+        var eventResponse = await _client.DispatchEvent<JoinRoomEvent, Message<JoinRoomMessage>>(@event);
 
         Assert.Multiple(() =>
         {
@@ -52,8 +52,8 @@ public class JoinRoomEventTests
             RoomName = Enum.GetName(typeof(Room), ROOM_ONE)!
         };
 
-        _ = await this.client.DispatchEvent<JoinRoomEvent, Message<JoinRoomMessage>>(@event);
-        var eventResponse = await this.client.DispatchEvent<JoinRoomEvent, Message<ErrorMessage>>(@event);
+        _ = await _client.DispatchEvent<JoinRoomEvent, Message<JoinRoomMessage>>(@event);
+        var eventResponse = await _client.DispatchEvent<JoinRoomEvent, Message<ErrorMessage>>(@event);
 
         Assert.Multiple(() =>
         {
@@ -73,7 +73,7 @@ public class JoinRoomEventTests
             RoomName = unexistingRoomName
         };
 
-        var eventResponse = await this.client.DispatchEvent<JoinRoomEvent, Message<ErrorMessage>>(@event);
+        var eventResponse = await _client.DispatchEvent<JoinRoomEvent, Message<ErrorMessage>>(@event);
 
         Assert.Multiple(() =>
         {

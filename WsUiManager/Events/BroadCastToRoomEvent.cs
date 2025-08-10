@@ -1,8 +1,5 @@
-namespace WsUiManager.Events;
-
 using System.Text.Encodings.Web;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Fleck;
 using WsUiManager.Entities;
 using WsUiManager.Entities.Enums;
@@ -10,17 +7,18 @@ using WsUiManager.Entities.Feedback;
 using WsUiManager.Events.Base;
 using WsUiManager.Events.Exceptions;
 
+namespace WsUiManager.Events;
 public class BroadCastToRoomEvent : BaseEvent
 {
-    private string roomName = "";
+    private string _roomName = "";
 
     public required string Message { get; set; }
     public required string RoomName
     {
-        get => this.roomName;
-        set => this.roomName = Enum.GetNames(typeof(Room))
+        get => _roomName;
+        set => _roomName = Enum.GetNames(typeof(Room))
             .Where(room => room.Equals(value, StringComparison.OrdinalIgnoreCase))
-            .FirstOrDefault("");
+            .FirstOrDefault(string.Empty);
     }
 }
 
@@ -32,6 +30,13 @@ public class BroadCastToRoomWithUsername
 
 public class BroadCastToRoom : BaseHandler<BroadCastToRoomEvent>
 {
+    private static readonly JsonSerializerOptions _jsonSerializerForMessage = new()
+    {
+        WriteIndented = true,
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+    };
+
     public override async Task Handle(BroadCastToRoomEvent eventType, IWebSocketConnection socket)
     {
         if (string.IsNullOrEmpty(eventType.RoomName))
@@ -47,7 +52,7 @@ public class BroadCastToRoom : BaseHandler<BroadCastToRoomEvent>
 
         var roomAsEnum = Enum.Parse<Room>(eventType.RoomName);
 
-        await StateService.BroadcastToRoom((int)roomAsEnum, JsonSerializer.Serialize(message, JsonSerializerForMessage));
+        await StateService.BroadcastToRoom((int)roomAsEnum, JsonSerializer.Serialize(message, _jsonSerializerForMessage));
         await socket.Send(new Message<BroadCastToRoomMessage>()
         {
             ConnectionId = socket.ConnectionInfo.Id,
@@ -58,11 +63,4 @@ public class BroadCastToRoom : BaseHandler<BroadCastToRoomEvent>
             },
         }.AsJson());
     }
-
-    private static readonly JsonSerializerOptions JsonSerializerForMessage = new()
-    {
-        WriteIndented = true,
-        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-    };
 }

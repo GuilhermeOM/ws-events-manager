@@ -1,5 +1,3 @@
-namespace WsUiManagerTest;
-
 using WsUiManager;
 using WsUiManager.Entities;
 using WsUiManager.Entities.Enums;
@@ -7,10 +5,12 @@ using WsUiManager.Entities.Feedback;
 using WsUiManager.Events;
 using WsUiManagerTest.Utils;
 
+namespace WsUiManagerTest;
+
 [TestFixture, Description("Testar as respostas do evento BroadCastToRoomEvent"), Category("Event")]
 public class BroadCastToRoomEventTests
 {
-    private WebsocketEventTest client;
+    private WebsocketEventTest _client;
     private const int ROOM_ONE = 1;
 
     [SetUp]
@@ -18,11 +18,11 @@ public class BroadCastToRoomEventTests
     {
         _ = Program.Startup([]);
 
-        this.client = new("ws://localhost:8181");
+        _client = new("ws://localhost:8181");
     }
 
     [TearDown]
-    public void TearDown() => this.client.Dispose();
+    public void TearDown() => _client.Dispose();
 
     [Test]
     public async Task ReceivesMessageWhenInRoomBroadcasted()
@@ -40,8 +40,8 @@ public class BroadCastToRoomEventTests
             Message = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas vel faucibus risus, vitae scelerisque nibh."
         };
 
-        _ = await this.client.DispatchEvent<JoinRoomEvent, Message<JoinRoomMessage>>(joinRoomEvent);
-        var eventResponse = await this.client.DispatchEvent<BroadCastToRoomEvent, BroadCastToRoomWithUsername>(@event);
+        _ = await _client.DispatchEvent<JoinRoomEvent, Message<JoinRoomMessage>>(joinRoomEvent);
+        var eventResponse = await _client.DispatchEvent<BroadCastToRoomEvent, BroadCastToRoomWithUsername>(@event);
 
         Assert.Multiple(() =>
         {
@@ -60,7 +60,7 @@ public class BroadCastToRoomEventTests
             Message = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas vel faucibus risus, vitae scelerisque nibh."
         };
 
-        _ = Assert.ThrowsAsync<TimeoutException>(async () => await this.client.DispatchEvent<BroadCastToRoomEvent, BroadCastToRoomWithUsername>(@event));
+        _ = Assert.ThrowsAsync<TimeoutException>(async () => await _client.DispatchEvent<BroadCastToRoomEvent, BroadCastToRoomWithUsername>(@event));
     }
 
     [Test]
@@ -86,9 +86,9 @@ public class BroadCastToRoomEventTests
             Message = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas vel faucibus risus, vitae scelerisque nibh."
         };
 
-        _ = await this.client.DispatchEvent<RegisterEvent, Message<RegisterMessage>>(registerEvent);
-        _ = await this.client.DispatchEvent<JoinRoomEvent, Message<JoinRoomMessage>>(joinRoomEvent);
-        var eventResponse = await this.client.DispatchEvent<BroadCastToRoomEvent, BroadCastToRoomWithUsername>(@event);
+        _ = await _client.DispatchEvent<RegisterEvent, Message<RegisterMessage>>(registerEvent);
+        _ = await _client.DispatchEvent<JoinRoomEvent, Message<JoinRoomMessage>>(joinRoomEvent);
+        var eventResponse = await _client.DispatchEvent<BroadCastToRoomEvent, BroadCastToRoomWithUsername>(@event);
 
         Assert.That(eventResponse.From, Is.EqualTo(registerEvent.Username));
     }
@@ -109,8 +109,8 @@ public class BroadCastToRoomEventTests
             Message = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas vel faucibus risus, vitae scelerisque nibh."
         };
 
-        _ = await this.client.DispatchEvent<JoinRoomEvent, Message<JoinRoomMessage>>(joinRoomEvent);
-        var eventResponse = await this.client.DispatchEvent<BroadCastToRoomEvent, BroadCastToRoomWithUsername>(@event);
+        _ = await _client.DispatchEvent<JoinRoomEvent, Message<JoinRoomMessage>>(joinRoomEvent);
+        var eventResponse = await _client.DispatchEvent<BroadCastToRoomEvent, BroadCastToRoomWithUsername>(@event);
 
         Assert.That(eventResponse.Message, Is.EqualTo(@event.Message));
     }

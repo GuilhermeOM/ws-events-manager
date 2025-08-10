@@ -1,12 +1,10 @@
-namespace WsUiManager.Events;
-
-using System.Threading.Tasks;
 using Fleck;
 using WsUiManager.Entities;
 using WsUiManager.Entities.Feedback;
 using WsUiManager.Events.Base;
 using WsUiManager.Events.Exceptions;
 
+namespace WsUiManager.Events;
 public class RegisterEvent : BaseEvent
 {
     public required string Username { get; set; }

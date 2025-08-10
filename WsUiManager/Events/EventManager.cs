@@ -1,12 +1,16 @@
-namespace WsUiManager.Events;
-
 using Fleck;
 using System.Reflection;
 using System.Text.Json;
 using WsUiManager.Events.Base;
 
+namespace WsUiManager.Events;
 public static class EventManager
 {
+    private static readonly JsonSerializerOptions _serializePropertyInCaseInsensitive = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
     public static HashSet<Type> FindAndInjectClientEventHandlers(this WebApplicationBuilder builder,
         Assembly assemblyReference)
     {
@@ -29,7 +33,7 @@ public static class EventManager
     public static async Task InvokeClientEventHandler(this WebApplication app, HashSet<Type> types,
         IWebSocketConnection ws, string message)
     {
-        var @event = JsonSerializer.Deserialize<BaseEvent>(message, SerializePropertyInCaseInsensitive)
+        var @event = JsonSerializer.Deserialize<BaseEvent>(message, _serializePropertyInCaseInsensitive)
             ?? throw new ArgumentException($"Não foi possível deserializar string: {message} para {nameof(BaseEvent)}");
 
         var eventType = @event.EventType.EndsWith("Event", StringComparison.OrdinalIgnoreCase)
@@ -63,9 +67,4 @@ public static class EventManager
 
         await clientEventServiceClass.InvokeHandle(message, ws);
     }
-
-    private static readonly JsonSerializerOptions SerializePropertyInCaseInsensitive = new()
-    {
-        PropertyNameCaseInsensitive = true
-    };
 }

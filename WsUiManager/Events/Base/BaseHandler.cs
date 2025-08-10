@@ -1,31 +1,29 @@
-namespace WsUiManager.Events.Base;
-
 using System.Reflection;
 using System.Text.Json;
 using Fleck;
 
-// @Warning - Tudo que herdar BaseHandler torna-se um Singleton na aplicação.
+namespace WsUiManager.Events.Base;
 public abstract class BaseHandler<T> where T : BaseEvent
 {
-    public string EventType => this.GetType().Name;
+    private static readonly JsonSerializerOptions _serializePropertyInCaseInsensitive = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
+    public string EventType => GetType().Name;
 
     public abstract Task Handle(T eventType, IWebSocketConnection socket);
 
     public async Task InvokeHandle(string message, IWebSocketConnection socket)
     {
-        var @event = JsonSerializer.Deserialize<T>(message, SerializePropertyInCaseInsensitive)
+        var @event = JsonSerializer.Deserialize<T>(message, _serializePropertyInCaseInsensitive)
             ?? throw new ArgumentException($"Não foi possível deserializar em {typeof(T).Name} a partir da string: {message}");
 
-        foreach (var baseEventFilterAttribute in this.GetType().GetCustomAttributes().OfType<BaseFilterAttribute>())
+        foreach (var baseEventFilterAttribute in GetType().GetCustomAttributes().OfType<BaseFilterAttribute>())
         {
             await baseEventFilterAttribute.Handle(socket, @event);
         }
 
-        await this.Handle(@event, socket);
+        await Handle(@event, socket);
     }
-
-    private static readonly JsonSerializerOptions SerializePropertyInCaseInsensitive = new()
-    {
-        PropertyNameCaseInsensitive = true
-    };
 }

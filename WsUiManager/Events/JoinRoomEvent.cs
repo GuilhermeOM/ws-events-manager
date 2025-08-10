@@ -1,6 +1,3 @@
-namespace WsUiManager.Events;
-
-using System.Threading.Tasks;
 using Fleck;
 using Serilog;
 using WsUiManager.Entities;
@@ -8,16 +5,17 @@ using WsUiManager.Entities.Enums;
 using WsUiManager.Events.Base;
 using WsUiManager.Events.Exceptions;
 
+namespace WsUiManager.Events;
 public class JoinRoomEvent : BaseEvent
 {
-    private string roomName = "";
+    private string _roomName = "";
 
     public required string RoomName
     {
-        get => this.roomName;
-        set => this.roomName = Enum.GetNames(typeof(Room))
+        get => _roomName;
+        set => _roomName = Enum.GetNames(typeof(Room))
             .Where(room => room.Equals(value, StringComparison.OrdinalIgnoreCase))
-            .FirstOrDefault("");
+            .FirstOrDefault(string.Empty);
     }
 }
 
@@ -38,7 +36,7 @@ public class JoinRoom : BaseHandler<JoinRoomEvent>
             throw new EventFailedException();
         }
 
-        Log.Information("{@Id} - Cliente juntou-se a sala {@Room}.",
+        Log.Information("{Id} - Cliente juntou-se a sala {Room}.",
             socket.ConnectionInfo.Id, Enum.GetName(typeof(Room), (int)roomAsEnum));
 
         await socket.Send(new Message<JoinRoomMessage>()

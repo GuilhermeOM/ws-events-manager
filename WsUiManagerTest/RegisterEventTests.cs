@@ -1,26 +1,26 @@
-namespace WsUiManagerTest;
-
 using WsUiManager;
 using WsUiManager.Entities;
 using WsUiManager.Entities.Feedback;
 using WsUiManager.Events;
 using WsUiManagerTest.Utils;
 
+namespace WsUiManagerTest;
+
 [TestFixture, Description("Testar as respostas do evento RegisterEvent"), Category("Event")]
 public class RegisterEventTests
 {
-    private WebsocketEventTest client;
+    private WebsocketEventTest _client;
 
     [SetUp]
     public void Setup()
     {
         _ = Program.Startup([]);
 
-        this.client = new("ws://localhost:8181");
+        _client = new("ws://localhost:8181");
     }
 
     [TearDown]
-    public void TearDown() => this.client.Dispose();
+    public void TearDown() => _client.Dispose();
 
     [Test]
     [TestCase("John Doe")]
@@ -32,7 +32,7 @@ public class RegisterEventTests
             Username = username,
         };
 
-        var eventResponse = await this.client.DispatchEvent<RegisterEvent, Message<RegisterMessage>>(@event);
+        var eventResponse = await _client.DispatchEvent<RegisterEvent, Message<RegisterMessage>>(@event);
 
         Assert.Multiple(() =>
         {
@@ -52,8 +52,8 @@ public class RegisterEventTests
             Username = username,
         };
 
-        _ = await this.client.DispatchEvent<RegisterEvent, Message<RegisterMessage>>(@event);
-        var eventResponse = await this.client.DispatchEvent<RegisterEvent, Message<ErrorMessage>>(@event);
+        _ = await _client.DispatchEvent<RegisterEvent, Message<RegisterMessage>>(@event);
+        var eventResponse = await _client.DispatchEvent<RegisterEvent, Message<ErrorMessage>>(@event);
 
         Assert.Multiple(() =>
         {
@@ -72,7 +72,7 @@ public class RegisterEventTests
             Username = "Anonymous",
         };
 
-        var eventResponse = await this.client.DispatchEvent<RegisterEvent, Message<ErrorMessage>>(@event);
+        var eventResponse = await _client.DispatchEvent<RegisterEvent, Message<ErrorMessage>>(@event);
 
         Assert.Multiple(() =>
         {

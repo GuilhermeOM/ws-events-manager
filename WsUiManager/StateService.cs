@@ -1,10 +1,9 @@
-namespace WsUiManager;
-
 using Fleck;
 using Serilog;
 using WsUiManager.Entities.Enums;
 using WsUiManager.Events.Exceptions;
 
+namespace WsUiManager;
 public class WebSocketMetaData(IWebSocketConnection connection)
 {
     public IWebSocketConnection Connection { get; set; } = connection;
@@ -16,15 +15,14 @@ public static class StateService
     public static readonly Dictionary<Guid, WebSocketMetaData> Connections = [];
     public static readonly Dictionary<int, HashSet<Guid>> Rooms = [];
 
-    // Primeira conexão usuario é identificado como Anonymous
     public static void AddConnection(IWebSocketConnection ws)
     {
         var websocketMetadata = new WebSocketMetaData(ws) { Username = "Anonymous" };
         var didAdd = Connections.TryAdd(ws.ConnectionInfo.Id, websocketMetadata);
 
         var status = didAdd
-            ? "{@Id} - Nova conexão adicionada com sucesso!"
-            : "{@Id} - Não foi possível adicionar a nova conexão.";
+            ? "{Id} - Nova conexão adicionada com sucesso!"
+            : "{Id} - Não foi possível adicionar a nova conexão.";
 
         Log.Write(
             level: didAdd
@@ -33,7 +31,7 @@ public static class StateService
             messageTemplate: status,
             ws.ConnectionInfo.Id);
 
-        Log.Debug("Id da conexão adicionada: {@Id}, Info da conexão adicionada: {@ConnectionInfo}.",
+        Log.Debug("Id da conexão adicionada: {Id}, Info da conexão adicionada: {@ConnectionInfo}.",
             ws.ConnectionInfo.Id, websocketMetadata.Connection.ConnectionInfo);
     }
 
@@ -47,8 +45,8 @@ public static class StateService
             var didRemove = Connections.Remove(ws.ConnectionInfo.Id);
 
             var status = didRemove
-                ? "{@Id} - Conexão do cliente {@Username} removida com sucesso!"
-                : "{@Id} - Não foi possível remover a conexão do cliente {@Username}.";
+                ? "{Id} - Conexão do cliente {Username} removida com sucesso!"
+                : "{Id} - Não foi possível remover a conexão do cliente {Username}.";
 
             Log.Write(
                 level: didRemove
@@ -68,7 +66,7 @@ public static class StateService
 
         if (!Rooms.TryGetValue(room, out var connectionIds))
         {
-            Log.Debug("Sala com id {@Room} existe mas não foi criada, realizando criação.", room);
+            Log.Debug("Sala com id {Room} existe mas não foi criada, realizando criação.", room);
 
             connectionIds = new HashSet<Guid>();
             Rooms.Add(room, connectionIds);
@@ -93,8 +91,8 @@ public static class StateService
                 var didRemove = connectionIds.Remove(ws.ConnectionInfo.Id);
 
                 var status = didRemove
-                    ? "{@Id} - Cliente removido da sala {@Room} com sucesso!"
-                    : "{@Id} - Não foi possível remover cliente da sala {@Room}.";
+                    ? "{Id} - Cliente removido da sala {Room} com sucesso!"
+                    : "{Id} - Não foi possível remover cliente da sala {Room}.";
 
                 Log.Write(
                     level: didRemove
@@ -107,7 +105,7 @@ public static class StateService
             }
         }
 
-        Log.Debug("{@Id} - Cliente não está em uma sala para remove-lo.", ws.ConnectionInfo.Id);
+        Log.Debug("{Id} - Cliente não está em uma sala para remove-lo.", ws.ConnectionInfo.Id);
 
         return false;
     }
@@ -116,7 +114,7 @@ public static class StateService
     {
         if (!Enum.IsDefined(typeof(Room), room))
         {
-            Log.Error("Sala com enum id {@Room} não existe.", room);
+            Log.Error("Sala com enum id {Room} não existe.", room);
 
             throw new RoomNotExistsException();
         }
@@ -130,7 +128,7 @@ public static class StateService
             return didRemove;
         }
 
-        Log.Debug("{@Id} - Cliente não está na sala solicitada para remove-lo.", ws.ConnectionInfo.Id);
+        Log.Debug("{Id} - Cliente não está na sala solicitada para remove-lo.", ws.ConnectionInfo.Id);
 
         throw new NotInARoomException();
     }
@@ -146,7 +144,7 @@ public static class StateService
         {
             if (Connections.TryGetValue(guid, out var ws))
             {
-                Log.Debug("Mensagem enviada para {@Guid}: {@Message}", guid, message);
+                Log.Debug("Mensagem enviada para {Guid}: {Message}", guid, message);
 
                 await ws.Connection.Send(message);
             }

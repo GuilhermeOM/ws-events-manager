@@ -1,5 +1,3 @@
-namespace WsUiManager.Events;
-
 using Fleck;
 using Serilog;
 using WsUiManager.Entities;
@@ -8,16 +6,17 @@ using WsUiManager.Entities.Feedback;
 using WsUiManager.Events.Base;
 using WsUiManager.Events.Exceptions;
 
+namespace WsUiManager.Events;
 public class LeaveRoomEvent : BaseEvent
 {
-    private string roomName = "";
+    private string _roomName = "";
 
     public required string RoomName
     {
-        get => this.roomName;
-        set => this.roomName = Enum.GetNames(typeof(Room))
+        get => _roomName;
+        set => _roomName = Enum.GetNames(typeof(Room))
             .Where(room => room.Equals(value, StringComparison.OrdinalIgnoreCase))
-            .FirstOrDefault("");
+            .FirstOrDefault(string.Empty);
     }
 }
 
@@ -38,7 +37,7 @@ public class LeaveRoom : BaseHandler<LeaveRoomEvent>
             throw new EventFailedException();
         }
 
-        Log.Information("{@Id} - Cliente removido da sala {@Room} com sucesso!",
+        Log.Information("{Id} - Cliente removido da sala {Room} com sucesso!",
             socket.ConnectionInfo.Id, eventType.RoomName);
 
         await socket.Send(new Message<LeaveRoomMessage>()

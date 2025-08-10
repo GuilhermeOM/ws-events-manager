@@ -1,5 +1,3 @@
-namespace WsUiManagerTest;
-
 using WsUiManager;
 using WsUiManager.Entities;
 using WsUiManager.Entities.Enums;
@@ -7,10 +5,12 @@ using WsUiManager.Entities.Feedback;
 using WsUiManager.Events;
 using WsUiManagerTest.Utils;
 
+namespace WsUiManagerTest;
+
 [TestFixture, Description("Testar as respostas do evento LeaveRoomEvent"), Category("Event")]
 public class LeaveRoomEventTests
 {
-    private WebsocketEventTest client;
+    private WebsocketEventTest _client;
     private const int ROOM_ONE = 1;
 
     [SetUp]
@@ -18,11 +18,11 @@ public class LeaveRoomEventTests
     {
         _ = Program.Startup([]);
 
-        this.client = new("ws://localhost:8181");
+        _client = new("ws://localhost:8181");
     }
 
     [TearDown]
-    public void TearDown() => this.client.Dispose();
+    public void TearDown() => _client.Dispose();
 
     [Test]
     public async Task CanLeaveExistingRoom()
@@ -39,8 +39,8 @@ public class LeaveRoomEventTests
             RoomName = Enum.GetName(typeof(Room), ROOM_ONE)!
         };
 
-        _ = await this.client.DispatchEvent<JoinRoomEvent, Message<JoinRoomMessage>>(joinRoomEvent);
-        var eventResponse = await this.client.DispatchEvent<LeaveRoomEvent, Message<LeaveRoomMessage>>(@event);
+        _ = await _client.DispatchEvent<JoinRoomEvent, Message<JoinRoomMessage>>(joinRoomEvent);
+        var eventResponse = await _client.DispatchEvent<LeaveRoomEvent, Message<LeaveRoomMessage>>(@event);
 
         Assert.Multiple(() =>
         {
@@ -59,7 +59,7 @@ public class LeaveRoomEventTests
             RoomName = Enum.GetName(typeof(Room), ROOM_ONE)!
         };
 
-        var eventResponse = await this.client.DispatchEvent<LeaveRoomEvent, Message<ErrorMessage>>(@event);
+        var eventResponse = await _client.DispatchEvent<LeaveRoomEvent, Message<ErrorMessage>>(@event);
 
         Assert.Multiple(() =>
         {
@@ -79,7 +79,7 @@ public class LeaveRoomEventTests
             RoomName = unexistingRoomName
         };
 
-        var eventResponse = await this.client.DispatchEvent<LeaveRoomEvent, Message<ErrorMessage>>(@event);
+        var eventResponse = await _client.DispatchEvent<LeaveRoomEvent, Message<ErrorMessage>>(@event);
 
         Assert.Multiple(() =>
         {

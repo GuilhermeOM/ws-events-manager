@@ -1,14 +1,11 @@
-namespace WsUiManager;
-
-using System;
 using System.Reflection;
-using System.Threading.Tasks;
 using Fleck;
 using Serilog;
 using WsUiManager.Entities;
 using WsUiManager.Entities.Feedback;
 using WsUiManager.Events;
 
+namespace WsUiManager;
 public static class Program
 {
     public static void Main(string[] args) => Startup(args).Run();
@@ -19,10 +16,7 @@ public static class Program
         var clientEventHandlers = builder.FindAndInjectClientEventHandlers(Assembly.GetExecutingAssembly());
 
         _ = builder.Logging.ClearProviders();
-        _ = builder.Host.UseSerilog((context, configuration) =>
-            configuration
-                .WriteTo.BetterStack(sourceToken: context.Configuration.GetValue<string>("BetterStack:Key")!)
-                .ReadFrom.Configuration(context.Configuration));
+        _ = builder.Host.UseSerilog((context, configuration) => configuration.ReadFrom.Configuration(context.Configuration));
 
         var app = builder.Build();
 
@@ -52,7 +46,7 @@ public static class Program
         {
             foreach (var exception in aggregateExceptions.InnerExceptions)
             {
-                Log.Error(exception, "{@Id} - Algo aconteceu em um disparo de evento solicitado.",
+                Log.Error(exception, "{Id} - Algo aconteceu em um disparo de evento solicitado.",
                     ws.ConnectionInfo.Id);
 
                 await TryNotifyErrorToClientAsync(exception, ws);
@@ -79,7 +73,7 @@ public static class Program
         catch (ConnectionNotAvailableException connectionException)
         {
             Log.Fatal(connectionException,
-                "Conexão com o cliente morreu. IP do cliente: {@ClientIpAddress}",
+                "Conexão com o cliente morreu. IP do cliente: {ClientIpAddress}",
                 ws.ConnectionInfo.ClientIpAddress);
         }
     }
